@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -64,6 +65,26 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
+    public function actionDynlogin()
+    {
+        $model = new LoginForm();
+
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            $result = $_POST['data'];
+            $res = json_decode($result, true);
+            $model->username = $res['username'];
+            $model->password = $res['password'];
+            $model->rememberMe = $res['rememberMe'];
+            if ($model->login()) {
+                $result = 'true';
+                return $result;
+            }
+            $result = 'false';
+            return $result;
+        }
+    }
+
     /**
      * Login action.
      *
@@ -123,6 +144,20 @@ class SiteController extends Controller
      */
     public function actionAbout()
     {
+        Yii::$app->user->setFlash('success', "Data1 saved!");
         return $this->render('about');
+
     }
+
+    public function actionRegister()
+    {
+        $result = $_POST['data'];
+       // $newUser = new User ('username', '$result','some_email@gmail.com');
+       // $newUser->save();
+        return json_encode($result, JSON_UNESCAPED_UNICODE);
+    }
+
+
 }
+
+
