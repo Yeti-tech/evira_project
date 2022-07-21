@@ -2,11 +2,11 @@
 
 namespace app\models;
 
-use ReflectionClass;
 use yii\db\ActiveRecord;
 
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
+
     /**
      * This is the model class for table "User".
      *
@@ -18,50 +18,40 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      * @property string $email
      * @property integer $cart_id
      * @property integer $account_id
+     *
      */
 
-    private $id;
-    private $user_name;
-    private $user_password;
-    private $user_authKey;
-    private $user_accessToken;
-    private $user_email;
-    private $user_cart_id;
-    private $user_account_id;
-
-
-   public function __construct(string $username, string $password, string $email, $config = [])
+    public function beforeSave($insert)
     {
-        $this->user_name = $username;
-        $this->user_password = $password;
-        $this->user_email = $email;
-        parent::__construct($config);
-        $this->beforeSave(true);
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->setAuthKey();
+            }
+            return true;
+        }
+        return false;
     }
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
-    }
-    public static function tableName(): string
+    public static function register_user($registerForm): User
     {
-        return 'user';
+       $user = new self;
+       $user->username = $registerForm->username;
+       $user->password = $registerForm->password;
+       $user->email = $registerForm->email;
+       $user->setAuthKey();
+       if($user->validate()){
+           $user->save();
+       }
+        return $user;
     }
 
+    public function getUsername(){
+        return $this->username;
+    }
+
+    public function getPassword(){
+        return $this->password;
+    }
     public static function findIdentity($id)
     {
         return static::findOne($id);
@@ -83,23 +73,32 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return static::findOne(['username' => $username]);
     }
 
+    /**
+     * @return int|string current user ID
+     */
     public function getId()
     {
         return $this->id;
     }
-
-    public function getAuthKey(): string
+    /**
+     * @return string current user auth key
+     */
+    public function getAuthKey()
     {
-        return $this->user_authKey;
+        return $this->auth_key;
     }
 
     public function setAuthKey(): string
     {
-        return $this->user_authKey = \Yii::$app->security->generateRandomString(5);
+        return $this->auth_key = \Yii::$app->security->generateRandomString(5);
     }
-    public function validateAuthKey($authKey): bool
+    /**
+     * @param string $authKey
+     * @return bool if auth key is valid for current user
+     */
+    public function validateAuthKey($authKey)
     {
-        return $this->user_authKey === $authKey;
+        return $this->getAuthKey() === $authKey;
     }
 
     /**
@@ -110,12 +109,23 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validatePassword(string $password): bool
     {
-        return $this->user_password === $password;
+        return $this->password === $password;
     }
 
-
-    public function beforeSave($insert): bool
+    public function rules(): array
     {
-        return $this->password === $password;
+        return [
+            [['username'], 'string', 'max' => 15],
+            [['username'], 'required'],
+            [['password'], 'string', 'max' => 10],
+            [['password'], 'required'],
+            [['auth_key'], 'unique'],
+            [['accessToken'], 'unique'],
+            [['email'], 'unique'],
+            [['email'], 'email'],
+            [['email'], 'required'],
+            [['cart_id'], 'unique'],
+            [['cart_id'], 'unique'],
+        ];
     }
 }

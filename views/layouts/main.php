@@ -68,6 +68,14 @@ AppAsset::register($this);
 </header>
 
 <main role="main" class="flex-shrink-0">
+
+  <?php  if(Yii::$app->user->isGuest): ?>
+    <button id = 'login' class = 'button_css'>Войти</button>
+    <?php else: ?>
+    <button id = 'logout' class = 'button_css'>Выйти</button>
+    <?php endif ?>
+    <noindex id = 'form' class = 'initial_form'></noindex>
+
     <div class="container">
         <?= Breadcrumbs::widget([
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
