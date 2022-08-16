@@ -72,17 +72,16 @@ class SiteController extends Controller
         $request = Yii::$app->request;
         if ($request->isAjax) {
             $result = $_POST['data'];
-            $res = json_decode($result, true);
+            $res = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
             $model->username = $res['username'];
             $model->password = $res['password'];
             $model->rememberMe = $res['rememberMe'];
             if ($model->login()) {
-                $result = 'true';
-                return $result;
+                return 'true';
             }
-            $result = 'false';
-            return $result;
+            return 'false';
         }
+        return false;
     }
 
     /**
@@ -92,19 +91,24 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
+        $request = Yii::$app->request;
+        if ($request->isPost) {
+            if (!Yii::$app->user->isGuest) {
+                return $this->goHome();
+            }
 
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+            $model = new LoginForm();
+            if ($model->load(Yii::$app->request->post()) && $model->login()) {
+                return $this->goBack();
+            }
+
+            $model->password = '';
+            return $this->render('login', [
+                'model' => $model,
+            ]);
+        }
+        return false;
     }
 
     /**
@@ -137,26 +141,20 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        Yii::$app->user->setFlash('success', "Data1 saved!");
-        return $this->render('about');
-
-    }
 
     public function actionRegister()
     {
         $result = $_POST['data'];
-       // $newUser = new User ('username', '$result','some_email@gmail.com');
-       // $newUser->save();
+        // $newUser = new User ('username', '$result','some_email@gmail.com');
+        // $newUser->save();
         return json_encode($result, JSON_UNESCAPED_UNICODE);
     }
 
+    public function actionTest(): string
+    {
+        return $this->render('test'
+        );
+    }
 
 }
 

@@ -23,14 +23,11 @@ class LoginForm extends Model
     /**
      * @return array the validation rules.
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            // username and password are both required
             [['username', 'password'], 'required'],
-            // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
@@ -41,26 +38,26 @@ class LoginForm extends Model
      *
      * @param string $attribute the attribute currently being validated
      * @param array $params the additional name-value pairs given in the rule
-     */
-
-    public function validatePassword($attribute, $params)
-    {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
-
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
-            }
-        }
-    }
-
-    /**
+     * /
+     * /**
+     *
+     *
+     * public function validatePassword($attribute, $params)
+     * {
+     * if (!$this->hasErrors()) {
+     * $user = $this->getUser();
+     *
+     * if (!$user || !$user->validatePassword($this->password)) {
+     * $this->addError($attribute, 'Incorrect username or password.');
+     * }
+     * }
+     * }
+     * /**
      * Logs in a user using the provided username and password.
      * @return bool whether the user is logged in successfully
      */
-    public function login()
+    public function login(): bool
     {
-
         $session = Yii::$app->session;
         $session->open();
         if ($this->validate()) {
@@ -69,18 +66,37 @@ class LoginForm extends Model
         return false;
     }
 
+
+    public function validatePassword(): bool
+    {
+        $identity = User::findByUsername($this->username);
+        if ($identity) {
+            $identity_hash = $identity->getPassword();
+            if (Yii::$app->getSecurity()->validatePassword($this->password, $identity_hash)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function loginAfterRegister($username, $password_hash): void
+    {
+        $loginForm = new self();
+        $loginForm->password = $password_hash;
+        $loginForm->username = $username;
+        $loginForm->login();
+    }
+
     /**
      * Finds user by [[username]]
      *
      * @return User|null
      */
-    public function getUser()
+    public function getUser(): ?User
     {
-
         if ($this->_user === false) {
             $this->_user = User::findByUsername($this->username);
         }
-
         return $this->_user;
     }
 }

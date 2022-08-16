@@ -17,27 +17,39 @@ class RegisterFormController extends Controller
 
     public function actionIndex(): string
     {
-
         $registerForm = new registerForm;
-        if ( isset($_POST['RegisterForm'])) {
+        if (isset($_POST['RegisterForm'])) {
             $request = Yii::$app->request;
             $post = $request->post();
+            $registerForm->username = Html::encode($post['RegisterForm']['username']);
+            $registerForm->password = Html::encode($post['RegisterForm']['password']);
+            $password_hash = Yii::$app->getSecurity()->generatePasswordHash($registerForm->password);
+            $registerForm->email = Html::encode($post['RegisterForm']['email']);
 
-            if ($registerForm->load($post) && $registerForm->validate()) {
+            if ($registerForm->validate()) {
+                User::register_user($registerForm, $password_hash);
 
-                User::register_user($registerForm);
-                $loginForm = new LoginForm();
-                $loginForm->username = Html::encode ($post['RegisterForm']['username']);
-                $loginForm->password = Html::encode ($post['RegisterForm']['password']);
-                $loginForm->login();
+                LoginForm::loginAfterRegister($registerForm->username, $password_hash);
                 $this->goHome();
+
             } else {
                 $errors = $registerForm->errors;
                 // здесь вывести ошибку
             }
         }
-       return $this->render('index',
+        return $this->render('index',
             ['model' => $registerForm]);
     }
 
+    public function actionLogout(): \yii\web\Response
+    {
+        Yii::$app->user->logout();
+        return $this->goHome();
+    }
+
+    public function actionTest(): string
+    {
+        return $this->render('test'
+        );
+    }
 }

@@ -1,7 +1,6 @@
-<?php
 
-/** @var yii\web\View $this */
 
+<link rel="stylesheet" href= "../../stylesheets/page.css">
 
 
 

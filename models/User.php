@@ -2,7 +2,9 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\Html;
 
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -32,26 +34,29 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return false;
     }
 
-    public static function register_user($registerForm): User
+    public static function register_user($registerForm, $password_hash): User
     {
-       $user = new self;
-       $user->username = $registerForm->username;
-       $user->password = $registerForm->password;
-       $user->email = $registerForm->email;
-       $user->setAuthKey();
-       if($user->validate()){
-           $user->save();
-       }
+        $user = new self;
+        $user->username = $registerForm->username;
+        $user->password = $password_hash;
+        $user->email = $registerForm->email;
+        $user->setAuthKey();
+        if ($user->validate()) {
+            $user->save();
+        }
         return $user;
     }
 
-    public function getUsername(){
+    public function getUsername()
+    {
         return $this->username;
     }
 
-    public function getPassword(){
+    public function getPassword()
+    {
         return $this->password;
     }
+
     public static function findIdentity($id)
     {
         return static::findOne($id);
@@ -80,6 +85,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     {
         return $this->id;
     }
+
     /**
      * @return string current user auth key
      */
@@ -92,6 +98,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     {
         return $this->auth_key = \Yii::$app->security->generateRandomString(5);
     }
+
     /**
      * @param string $authKey
      * @return bool if auth key is valid for current user
@@ -117,7 +124,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return [
             [['username'], 'string', 'max' => 15],
             [['username'], 'required'],
-            [['password'], 'string', 'max' => 10],
+            [['password'], 'string'],
             [['password'], 'required'],
             [['auth_key'], 'unique'],
             [['accessToken'], 'unique'],
