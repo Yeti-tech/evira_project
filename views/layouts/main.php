@@ -65,45 +65,48 @@ AppAsset::register($this);
             </nav>
             <noindex>
                 <ul class="useractivities list-inline d-flex align-items-center" id='useractivities'>
-                    <li class="dropdown open" id="login">
-                        <a href="/login#jsLogin" rel="nofollow" class="dropdown-toggle" data-toggle="dropdown"
-                           role="button" aria-expanded="true">
-                            <span>Вход</span>
-                        </a>
-                        <ul class="login-dropdown dropdown-menu dropdown-menu-right js-keep-open">
-                            <form method="post" id="mainLoginForm">
-                                <div class="form-group">
-                                    <label for="loginForLoginForm">Имя пользователя</label>
-                                    <input id="loginForLoginForm" name="username" type="text" class="form-control"
-                                           autocomplete="off">
+                    <?php if (Yii::$app->user->isGuest): ?>
+                        <li class="dropdown open" id="login">
+                            <a href="/login#jsLogin" rel="nofollow" class="dropdown dropdown-toggle" data-toggle="dropdown"
+                               role="button" aria-expanded="true" id = 'dropdown'>
+                                <span>Вход</span>
+                            </a>
+                            <ul class="login-dropdown dropdown-menu dropdown-menu-right js-keep-open">
+                                <form method="post" id="mainLoginForm">
+                                    <div class="form-group">
+                                        <label for="loginForLoginForm">Имя пользователя</label>
+                                        <input id="loginForLoginForm" name="username" type="text" class="form-control"
+                                               autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="passwordForLoginForm">Пароль</label>
+                                        <input id="passwordForLoginForm" name="password" type="password"
+                                               class="form-control" autocomplete="off">
+                                    </div>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input name="rememberMe" type="checkbox" value="on" checked> запомнить
+                                        </label>
+                                    </div>
+                                    <input type="submit" value="Войти" name="do_login" id="do_login"
+                                           class="btn btn-default">
+                                    <div class="clearfix">
+                                        <a href="password-restore" rel="nofollow" class="pull-right clearfix"
+                                           style="font-size: 10px;">
+                                        </a>
+                                    </div>
+                                </form>
+                                <div class="login-error-msg" id="loginErrorMsg"></div>
+                                <div class="block-separator my-15">
                                 </div>
-                                <div class="form-group">
-                                    <label for="passwordForLoginForm">Пароль</label>
-                                    <input id="passwordForLoginForm" name="password" type="password"
-                                           class="form-control" autocomplete="off">
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input name="rememberMe" type="checkbox" value="on" checked> запомнить
-                                    </label>
-                                </div>
-                                <input type="submit" value="Войти" name="do_login" id="do_login"
-                                       class="btn btn-default">
-                                <div class="clearfix">
-                                    <a href="/password restore" rel="nofollow" class="pull-right clearfix"
-                                       style="font-size: 10px;">
+                                <div class="small-text text-center sign-up-text"> У вас нет аккаунта?
+                                    <a href="register-form" rel="nofollow"
+                                       class="btn btn-default btn-small sign-up-button"> Зарегистрироваться
                                     </a>
                                 </div>
-                            </form>
-                            <div class="block-separator my-15">
-                            </div>
-                            <div class="small-text text-center sign-up-text"> У вас нет аккаунта?
-                                <a href="web/register-form" rel="nofollow"
-                                   class="btn btn-default btn-small sign-up-button"> Зарегистрироваться
-                                </a>
-                            </div>
-                        </ul>
-                    </li>
+                            </ul>
+                        </li>
+                    <?php endif ?>
                 </ul>
             </noindex>
         </div>

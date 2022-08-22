@@ -11,24 +11,27 @@ use yii\helpers\Html;
 class FormController extends Controller
 {
 
+    /**
+     * @throws \JsonException
+     */
     public function actionDynlogin()
     {
         $model = new LoginForm();
 
         $request = Yii::$app->request;
         if ($request->isAjax) {
-            $result = $_POST['data'];
-            $res = json_decode($result, true);
+            $res = json_decode($_POST['data'], true);
             $model->username = Html::encode($res['username']);
             $model->password = Html::encode($res['password']);
             $model->rememberMe = Html::encode($res['rememberMe']);
             if ($model->login()) {
-             $result = 'true';
-                return $result;
+                return json_encode('login-completed', JSON_THROW_ON_ERROR);
             }
-            $result = 'false';
-            return $result;
+            $errors = $model->getErrors();
+            return json_encode($errors, JSON_THROW_ON_ERROR);
+          //  return json_encode('invalid_login', JSON_THROW_ON_ERROR);
         }
+        return $this->render('../site/index');
         }
 
     public function actionDynlogout()

@@ -105,15 +105,11 @@ body {
 
 .main-site-container {
     background: url('/web/images/fon.jpeg') 90% 90% repeat;
-    width: 99%;
-    position: absolute;
-    left: 0.6%;
     height: 100%;
 }
 
 .site-container {
     background: url('/web/images/rus.jpg') 90% 90% repeat;
-    border: 3px solid olive;
     border-radius: 10px;
     padding: 15px 15px;
     position: relative;
@@ -167,12 +163,11 @@ body {
     background-color: #c69e6b;
     color: #fff;
     left: auto;
-    padding: 10px;
+    padding: 10px 10px 35px 10px;
     position: absolute;
     right: 50%;
     top: 15% !important;
     width: 205px;
-    height: 400px;
 }
 
 label {
@@ -238,6 +233,12 @@ li {
     font-size: smaller;
 }
 
+.big-text {
+    font-size: x-large;
+    font-weight: 500;
+
+}
+
 .dropdown-menu.login-dropdown input[type=submit], .dropdown-menu.login-dropdown input[type=text] {
     width: 100%;
 }
@@ -258,6 +259,9 @@ button, html input[type=button], input[type=reset], input[type=submit] {
     padding: 2px 5px;
 }
 
+.left {
+left: 2em;
+}
 a.pull-right.clearfix::before {
     content: "Забыли пароль?";
 }
@@ -349,12 +353,18 @@ a {
     box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
 }
 
-.registration-content {
-    width: 50%;
-    margin: auto;
+.inner-content-register {
+    min-width: 63%;
     background-color: wheat;
-    height: 90%;
-    padding-left: 5%;
+    height: 65%;
+    margin: auto;
+}
+
+.inner-content-restore-password {
+    min-width: 63%;
+    background-color: wheat;
+    height: 55%;
+    margin: auto;
 }
 
 .line {
@@ -364,4 +374,32 @@ a {
 
 .text-error {
     font-size: smaller;
+    display: block;
+}
+
+.content-section {
+    position:relative;
+    padding-left: 3em;
+    max-width: 60%;
+}
+
+
+.space-top {
+    padding-top: 5%;
+}
+
+.form-group.row.field-passwordrestore-email.required {
+    margin-bottom: 1rem;
+    padding-top: 20px;
+    width: 320px;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+
+.alert.alert-info {
+    height: 5em!important;
+}
+
+.black {
+    color: black;
 }

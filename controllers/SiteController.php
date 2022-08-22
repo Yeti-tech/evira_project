@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
+use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
@@ -60,68 +61,28 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
+    public function actionIndex(): string
     {
         return $this->render('index');
     }
 
+
     public function actionDynlogin()
     {
-        $model = new LoginForm();
-
-        $request = Yii::$app->request;
-        if ($request->isAjax) {
-            $result = $_POST['data'];
-            $res = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
-            $model->username = $res['username'];
-            $model->password = $res['password'];
-            $model->rememberMe = $res['rememberMe'];
-            if ($model->login()) {
-                return 'true';
+            $request = Yii::$app->request;
+            if ($request->isAjax) {
+                $model = new LoginForm();
+                $model->username = Html::encode($_POST['username']);
+                $model->password = Html::encode($_POST['password']);
+                $model->rememberMe = Html::encode($_POST['rememberMe']);
+                if ($model->login()) {
+                    return 'true';
+                }
+                return 'false';
             }
-            return 'false';
-        }
-        return false;
+            return false;
     }
 
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
-    public function actionLogin()
-    {
-
-        $request = Yii::$app->request;
-        if ($request->isPost) {
-            if (!Yii::$app->user->isGuest) {
-                return $this->goHome();
-            }
-
-            $model = new LoginForm();
-            if ($model->load(Yii::$app->request->post()) && $model->login()) {
-                return $this->goBack();
-            }
-
-            $model->password = '';
-            return $this->render('login', [
-                'model' => $model,
-            ]);
-        }
-        return false;
-    }
-
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
 
     /**
      * Displays contact page.
@@ -141,20 +102,6 @@ class SiteController extends Controller
         ]);
     }
 
-
-    public function actionRegister()
-    {
-        $result = $_POST['data'];
-        // $newUser = new User ('username', '$result','some_email@gmail.com');
-        // $newUser->save();
-        return json_encode($result, JSON_UNESCAPED_UNICODE);
-    }
-
-    public function actionTest(): string
-    {
-        return $this->render('test'
-        );
-    }
 
 }
 

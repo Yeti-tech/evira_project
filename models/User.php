@@ -52,6 +52,16 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return $this->username;
     }
 
+    public function setAccessToken ()
+    {
+        $this->accessToken = random_int(0, 99999);
+        $this->save();
+    }
+
+    public function getAccessToken ()
+    {
+        return $this->accessToken;
+    }
     public function getPassword()
     {
         return $this->password;
@@ -73,12 +83,18 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername(string $username)
+    public static function findByUsername(string $username): ?User
     {
         return static::findOne(['username' => $username]);
     }
 
+    public static function findByEmail(string $email): ?User
+    {
+        return static::findOne(['email' => $email]);
+    }
+
     /**
+     *
      * @return int|string current user ID
      */
     public function getId()
@@ -116,7 +132,11 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validatePassword(string $password): bool
     {
-        return $this->password === $password;
+        $identity_hash = $this->getPassword();
+        if (Yii::$app->getSecurity()->validatePassword($password, $identity_hash)) {
+            return true;
+        }
+        return false;
     }
 
     public function rules(): array

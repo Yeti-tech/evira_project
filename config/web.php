@@ -33,7 +33,16 @@ $config = [
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'enableSwiftMailerLogging' =>false,
+            //set useFileTransport to true to send to log file
+            'useFileTransport' => false,
+            'transport' => ['class' => 'Swift_SmtpTransport',
+            'host' => 'smtp.mail.ru',
+                'username' => 'evira100@mail.ru',
+                'password' =>  'JUeBX2rnPKmFn9FaxijG',
+                'port' => '465',
+                'encryption' => 'ssl',
+            ]
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

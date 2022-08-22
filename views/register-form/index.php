@@ -3,13 +3,13 @@
 use app\models\RegisterForm;
 use yii\bootstrap4\ActiveForm;
 use yii\bootstrap4\Html;
-use yii\helpers\VarDumper;
 
 /** @var RegisterForm $model */
 
 ?>
-<div class=registration-content>
-    <span><b><br>Регистрация</b></span>
+<div class=inner-content-register>
+    <section class = "content-section">
+        <h1 class=big-text><br>Регистрация</h1>
     <div class=line></div>
     <?php
     if (Yii::$app->user->isGuest):
@@ -36,10 +36,9 @@ use yii\helpers\VarDumper;
             </div>
         </div>
 
-        <?php ActiveForm::end(); ?>
-
+        <?php ActiveForm::end()?>
     <?php endif ?>
-
+    </section>
 </div>
 
 <link rel="stylesheet" href="../../stylesheets/page.css">

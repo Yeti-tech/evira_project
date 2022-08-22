@@ -22,9 +22,9 @@ class RegisterForm extends Model
             [['username'], 'string', 'max' => 15],
             [['password'], 'string', 'max' => 10],
             [['email'], 'email'],
-            [['email'], 'required', 'message' => 'Please choose an email.'],
-            [['username'], 'required', 'message' => 'Please choose a username.'],
-            [['password'], 'required', 'message' => 'Please choose a password.'],
+            [['email'], 'required'],
+            [['username'], 'required'],
+            [['password'], 'required'],
             [['username', 'email', 'password'], 'trim'],
         ];
     }

@@ -28,6 +28,7 @@ class LoginForm extends Model
         return [
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
+            [['username', 'password'], 'trim'],
             ['password', 'validatePassword'],
         ];
     }
@@ -36,8 +37,6 @@ class LoginForm extends Model
      * Validates the password.
      * This method serves as the inline validation for password.
      *
-     * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
      * /
      * /**
      *
@@ -50,8 +49,9 @@ class LoginForm extends Model
      * if (!$user || !$user->validatePassword($this->password)) {
      * $this->addError($attribute, 'Incorrect username or password.');
      * }
-     * }
-     * }
+
+
+
      * /**
      * Logs in a user using the provided username and password.
      * @return bool whether the user is logged in successfully
@@ -67,16 +67,22 @@ class LoginForm extends Model
     }
 
 
+    /**
+     * Validates the password.
+     * This method serves as the validation for password.
+     */
+
     public function validatePassword(): bool
     {
-        $identity = User::findByUsername($this->username);
-        if ($identity) {
-            $identity_hash = $identity->getPassword();
-            if (Yii::$app->getSecurity()->validatePassword($this->password, $identity_hash)) {
-                return true;
-            }
-        }
-        return false;
+         if (!$this->hasErrors()) {
+             $user = $this->getUser();
+             if (!$user || !$user->validatePassword($this->password)) {
+                 $this->addError('password', 'Incorrect password');
+                 return false;
+             }
+             return true;
+         }
+      return false;
     }
 
     public static function loginAfterRegister($username, $password_hash): void
@@ -99,4 +105,13 @@ class LoginForm extends Model
         }
         return $this->_user;
     }
+
+
+    public function attributeLabels(): array
+    {
+        return [
+            'username' => 'Имя пользователя',
+            'password' => 'Пароль'];
+    }
+
 }
