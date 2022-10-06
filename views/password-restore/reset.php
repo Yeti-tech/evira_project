@@ -5,22 +5,21 @@ use yii\bootstrap4\ActiveForm;
 use yii\bootstrap4\Html;
 
 /** @var User $user */
+/** @var integer $token*/
+
 ?>
-
-
 <div class=inner-content-restore-password>
     <section class="content-section">
         <h1 class=big-text><br>Восстановление пароля</h1>
         <div class=line></div>
     </section>
     <div class="space-top"></div>
-    <p class="alert alert-info"> Укажите электронную почту, к которой привязан ваш профиль. Мы вышлем письмо с ссылкой
-        для входа на сайт</p>
+    <p class="alert alert-info"> Введите новый пароль для входа на сайт</p>
     <div class="alert alert-warning" role="alert">
         <section class="content-section">
             <?php
             $form = ActiveForm::begin([
-                'id' => 'password-restore',
+                'id' => 'password-reset',
                 'layout' => 'horizontal',
                 'fieldConfig' => [
                     'template' => "{label}{input}",
@@ -28,14 +27,12 @@ use yii\bootstrap4\Html;
                     'inputOptions' => ['class' => 'form-control'],
                 ],
             ]); ?>
-
-            <?= $form->field($user, 'email')->textInput(['autofocus' => true]) ?>
-
+            <?= $form->field($user, 'password')->passwordInput(['autofocus' => true]) ?>
+            <?=$form->field($user, 'access_token')->hiddenInput(['value' => $token])->label(false) ?>
             <div class="form-group">
                 <div class="offset-lg-1 col-lg-11">
-                    <?= Html::submitButton('Отправить', ['class' => 'btn btn-default', 'name' => 'restore-password-button', 'id' => 'restore-password-button']) ?>
+                    <?= Html::submitButton('Отправить', ['class' => 'btn btn-default', 'name' => 'reset-password-button', 'id' => 'reset-password-button']) ?>
                 </div>
-
                 <?php ActiveForm::end() ?>
             </div>
         </section>

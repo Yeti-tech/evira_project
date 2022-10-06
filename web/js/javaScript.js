@@ -1,94 +1,89 @@
 function addEventListeners() {
-
+    //prevents login form from closing when clicked inside its borders
     $('.login-dropdown').on('click', function (e) {
         e.stopPropagation();
         $(".js-keep-open").attr('aria-expanded', true);
     });
 
-
+    //changes login button color when login form is opened
     $('.dropdown-toggle').on('click', function () {
         $('#login').toggleClass('lightbrown');
-        $('#loginForLoginForm').focus();
     })
 
+    //changes login button color back when login form is closed
+    $(document).mouseup(function (e) {
+       let myForm = $("#login");
+        if (myForm.has(e.target).length === 0) { //unless the click occurs inside child elements of the login button
+            $(myForm).removeClass('lightbrown');
+        }
+    });
+
+    //validates user data from login form and sends it to server by ajax if validated
     $('#do_login').on('click', function (e) {
+        e.stopPropagation();
         e.preventDefault();
-        do_login();
+        if (!validate_login_error()) {
+            do_login();
+        }
     })
 
-
+    //validates user data from registration form and sends it to server by ajax if validated
     $("#register-button").on('click', function (e) {
-        if (validate_register_error()) {
-            e.preventDefault();
+        e.preventDefault();
+        if (!validate_register_error()) {
+            do_register();
         }
     });
 
-    $(document).mouseup(function (e) { // событие клика по веб-документу
-        let myForm = $("#login"); // тут указываем ID элемента
-        if (!myForm.is(e.target)  // если клик был не по нашему блоку
-            && myForm.has(e.target).length === 0) { // и не по его дочерним элементам
-            $('#login').removeClass('lightbrown');
-        }
-    });
-
-
+    //validates user data from forgot password form and sends it to server by ajax if validated
     $('#restore-password-button').on('click', function (e) {
         e.preventDefault();
-      //  e.stopPropagation();
-        if(!validate_email($('#passwordrestore-email'))) {
-            sendAjax();
+        $(".text-error").remove();
+        if (!validate_email($('#user-email'))) {
+            sendAjax_forgot_password();
         }
-           return false;
     })
 
-    // $('#password-restore').on('beforeSubmit', function () {
-    //     event.preventDefault(); // stopping submitting
-    //     var data = $(this).serializeArray();
-    //    //  var url = $(this).attr('action');
-    //    $.ajax({
-    //       url: '/web/form/dynlogout',
-    //       type: 'post',
-    //      dataType: 'json',
-    //     data: data
-    //  })
-    //     .done(function (response) {
-    //         if (response.data.success === true) {
-    //            alert("Wow you commented");
-    //        }
-    //     })
-    //   .fail(function () {
-    //         console.log("error");
-    //    });
-
-    //    })
-    //  })
+    //validates user data from reset password form and sends it to server by ajax if validated
+    $('#reset-password-button').on('click', function (e) {
+        e.preventDefault();
+        if (!validate_password($('#user-password'))) {
+            sendAjax_reset_password();
+        }
+    })
 }
-
-
-//$('#restore-password-button').on("click", function (e) {
-//  e.preventDefault();
-//   if(!validate_email($('#passwordrestore-email'))) {
-//      sendAjax();
-//  }
-//})
-
-//  $("#login").on("click", function () {
-//  if (!$(this).find('span').length > 0) {
-//  $("#form").append('<span id=\'myForm\'></span>');
-//     addLoginTable()
-//  } else {
-//      removeLoginTable();
-//   }
-//})
-
 
 addEventListeners();
 
-function sendAjax() {
-let yiiform = $('#password-restore');
-let email  = $('#passwordrestore-email');
-$.ajax({
-       // type: yiiform.attr('method'),
+
+function sendAjax_reset_password() {
+    let yiiform = $('#password-reset');
+    let password = $('#user-password');
+    let token = $('#user-access_token');
+    $.ajax({
+        dataType: 'json',
+        type: "POST",
+        url: '/web/password-restore/vertoken?token='.token,
+        data: yiiform.serializeArray(),
+        success: function (result) {
+            $(".text-error").remove();
+            if (result === 'password saved') {
+               // password.after('<span class="text-error for-email">Новый пароль успешно сохранен</span>');
+                document.location.href = "/web/";
+            }
+             else {
+                password.after('<span class="text-error for-email">Пароль не сохранен, попробуйте еще раз</span>');
+            }
+        }
+    })
+}
+
+
+function sendAjax_forgot_password() {
+    let yiiform = $('#password-restore');
+    let email = $('#user-email');
+    $.ajax({
+        // type: yiiform.attr('method'),
         dataType: 'json',
         type: "POST",
         url: '/web/password-restore/restore',
@@ -97,7 +92,11 @@ $.ajax({
             if (result === 'this email is not registered') {
                 $(".text-error").remove();
                 email.after('<span class="text-error for-email">Такой пользователь не зарегистрирован</span>');
+            } else if (result === 'email successfully sent') {
+                $(".text-error").remove();
+                email.after('<span class="text-error for-email">Письмо успешно отправлено, проверьте почту</span>');
             } else if (result === 'invalid email') {
+                $(".text-error").remove();
                 email.after('<span class="text-error for-email">Такой почты не существует</span>');
             }
         }
@@ -105,7 +104,7 @@ $.ajax({
     return false;
 }
 
-
+//returns true in case of validation errors
 function validate_username(username) {
     if (username.val().length < 4) {
         username.after('<span class="text-error for-username">Логин должен быть больше 3 символов</span>');
@@ -114,7 +113,7 @@ function validate_username(username) {
     return false;
 }
 
-
+//returns true in case of validation errors
 function validate_password(password) {
     if (password.val().length < 6) {
         password.after('<span class="text-error for-password">Пароль должен быть не менее 6 символов</span>');
@@ -123,10 +122,9 @@ function validate_password(password) {
     return false;
 }
 
-
+//returns true in case of validation errors
 function validate_email(email) {
-    $(".text-error").remove();
-    let reg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;;
+    let reg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
     if (email.val().length < 6) {
         email.after('<span class="text-error for-email">Email должен быть не менее 6 символов</span>');
         return true;
@@ -134,9 +132,10 @@ function validate_email(email) {
         email.after('<span class="text-error for-email">Вы указали недопустимый e-mail</span>');
         return true;
     }
+    return false;
 }
 
-
+//returns true if at least one of the validation errors is true
 function validate_register_error() {
     $(".text-error").remove();
     let username = $('#registerform-username');
@@ -146,7 +145,7 @@ function validate_register_error() {
     return validate_username(username) | validate_password(password) | validate_email(email);
 }
 
-
+//returns true if at least one of the validation errors is true
 function validate_login_error() {
     $(".text-error").remove();
     let username = $('#loginForLoginForm');
@@ -155,32 +154,52 @@ function validate_login_error() {
     return validate_username(username) | validate_password(password);
 }
 
-
+//collects user data and sends it to server to log in the user
 function do_login() {
-    if (!validate_login_error()) {
-        let data = {};
-        data['username'] = $('#loginForLoginForm').val();
-        data['password'] = $('#passwordForLoginForm').val();
-        data['rememberMe'] = ($("input:checkbox").prop("checked"));
-        data = JSON.stringify(data);
-        $.ajax({
-            type: "POST",
-            url: '/web/form/dynlogin',
-            dataType: 'json',
-            data: {data: data},
-            success: function (result) {
-                if (result === 'login-completed') {
-                    document.location.href = "/web/";
-                } else {
-                    let password = $('#passwordForLoginForm');
-                    password.after('<span class="text-error for-password">Неверное имя или пароль</span>');
-                }
+    let data = {};
+    data['username'] = $('#loginForLoginForm').val();
+    data['password'] = $('#passwordForLoginForm').val();
+    data['rememberMe'] = ($("input:checkbox").prop("checked"));
+    data = JSON.stringify(data);
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        url: '/web/login-form/login',
+        dataType: 'json',
+        data: {data: data},
+        success: function (result) {
+            if (result === 'login-completed') {
+                document.location.href = "/web/";
+            } else {
+                let password = $('#passwordForLoginForm');
+                password.after('<span class="text-error for-password">Неверное имя или пароль</span>');
             }
-                .fail(function () {
-                    document.location.href = "/web/";
-                })
-        })
-    }
+        }
+    })
+}
+
+//collects user data and sends it to server to log in the user
+function do_register() {
+    let data = {};
+    data['username'] = $('#registerform-username').val();
+    data['password'] = $('#registerform-password').val();
+    data['email'] = ($('#registerform-email').val());
+    data = JSON.stringify(data);
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        url: '/web/register-form/register',
+        dataType: 'json',
+        data: {data: data,  _csrf : yii.getCsrfToken()},
+        success: function (result) {
+            if (result === 'register-completed') {
+                document.location.href = "/web/";
+            } else {
+                let email = $('#registerform-email');
+                email.after('<span class="text-error for-email">Ошибка регистрации, попробуйте снова</span>');
+            }
+        }
+    })
 }
 
 function logout() {

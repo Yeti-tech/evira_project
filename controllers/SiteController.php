@@ -67,23 +67,6 @@ class SiteController extends Controller
     }
 
 
-    public function actionDynlogin()
-    {
-            $request = Yii::$app->request;
-            if ($request->isAjax) {
-                $model = new LoginForm();
-                $model->username = Html::encode($_POST['username']);
-                $model->password = Html::encode($_POST['password']);
-                $model->rememberMe = Html::encode($_POST['rememberMe']);
-                if ($model->login()) {
-                    return 'true';
-                }
-                return 'false';
-            }
-            return false;
-    }
-
-
     /**
      * Displays contact page.
      *
@@ -101,7 +84,6 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
-
 
 }
 

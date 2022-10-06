@@ -2,10 +2,9 @@
 
 namespace app\models;
 
-use phpDocumentor\Reflection\Types\Boolean;
 use Yii;
 use yii\base\Model;
-use yii\helpers\VarDumper;
+
 
 /**
  * ContactForm is the model behind the contact form.
@@ -16,31 +15,15 @@ class ContactForm extends Model
     public $email;
     public $subject;
     public $body;
-    public $verifyCode;
-
 
     /**
      * @return array the validation rules.
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            // name, email, subject and body are required
             [['name', 'email', 'subject', 'body'], 'required'],
-            // email has to be a valid email address
             ['email', 'email'],
-            // verifyCode needs to be entered correctly
-           // ['verifyCode', 'captcha'],
-        ];
-    }
-
-    /**
-     * @return array customized attribute labels
-     */
-    public function attributeLabels()
-    {
-        return [
-            'verifyCode' => 'Verification Code',
         ];
     }
 
@@ -57,10 +40,8 @@ class ContactForm extends Model
                 Yii::$app->mailer->compose()
                     ->setFrom(Yii::$app->params['senderEmail'])
                     ->setTo($email)
-                    //->setReplyTo([$this->email => $this->name])
                     ->setSubject($this->subject)
-                    //->setTextBody($this->body)
-                     ->setHtmlBody($this->body)
+                    ->setHtmlBody($this->body)
                     ->send();
                 return true;
             } catch (\Swift_TransportException $exception) {
@@ -70,13 +51,17 @@ class ContactForm extends Model
         return false;
     }
 
+    //fills in data for email
     public static function emailPasswordRestore($posted_email, $token): bool
     {
         $email_sender = new self;
-        $email_sender->name = 'name';
-        $email_sender->subject =  'тема сообщения';
-        $email_sender->body = "<b>текст сообщения в формате HTML</b><a href='http://evira/web/vertoken/&token=".$token.">Click Here to Reset Password</a>";
+        $email_sender->name = Yii::$app->params['senderName'];
+        $email_sender->subject =  'Восстановление пароля';
+        $email_sender->body = '<b>Evira</b><br> Перейдите по ссылке, чтобы восстановить пароль <a href="http://evira/web/password-restore/vertoken?token=' .$token. '">http://evira/web/password-restore/vertoken</a></b>';
+       // $email_sender->body = '>';
         $email_sender->email = $posted_email;
         return $email_sender->contact($posted_email);
     }
+
+
 }

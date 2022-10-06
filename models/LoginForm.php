@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\helpers\Html;
 
 /**
  * LoginForm is the model behind the login form.
@@ -49,9 +50,6 @@ class LoginForm extends Model
      * if (!$user || !$user->validatePassword($this->password)) {
      * $this->addError($attribute, 'Incorrect username or password.');
      * }
-
-
-
      * /**
      * Logs in a user using the provided username and password.
      * @return bool whether the user is logged in successfully
@@ -66,6 +64,21 @@ class LoginForm extends Model
         return false;
     }
 
+    /**
+     * @throws \JsonException
+     */
+    public function ajaxLogin($decoded_POST)
+    {
+        $this->username = Html::encode($decoded_POST['username']);
+        $this->password = Html::encode($decoded_POST['password']);
+        $this->rememberMe = Html::encode($decoded_POST['rememberMe']);
+        if ($this->login()) {
+            return json_encode('login-completed', JSON_THROW_ON_ERROR);
+        }
+        $errors = $this->getErrors();
+        return json_encode($errors, JSON_THROW_ON_ERROR);
+    }
+
 
     /**
      * Validates the password.
@@ -74,22 +87,22 @@ class LoginForm extends Model
 
     public function validatePassword(): bool
     {
-         if (!$this->hasErrors()) {
-             $user = $this->getUser();
-             if (!$user || !$user->validatePassword($this->password)) {
-                 $this->addError('password', 'Incorrect password');
-                 return false;
-             }
-             return true;
-         }
-      return false;
+        if (!$this->hasErrors()) {
+            $user = $this->getUser();
+            if (!$user || !$user->validatePassword($this->password)) {
+                $this->addError('password', 'Incorrect password');
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
-    public static function loginAfterRegister($username, $password_hash): void
+    public static function loginAfterRegister($username, $password): void
     {
         $loginForm = new self();
-        $loginForm->password = $password_hash;
         $loginForm->username = $username;
+        $loginForm->password = $password;
         $loginForm->login();
     }
 

@@ -6,11 +6,13 @@
 
 // <meta name="viewport" content='content="width=device-width, initial-scale=1.0'>
 use app\assets\AppAsset;
+use app\models\User;
 use app\widgets\Alert;
 use yii\bootstrap4\Breadcrumbs;
 use yii\bootstrap4\Html;
 use yii\bootstrap4\Nav;
 use yii\bootstrap4\NavBar;
+use yii\helpers\Url;
 
 ?>
 
@@ -23,11 +25,12 @@ AppAsset::register($this);
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
 <head>
+    <?php $this->head() ?>
     <link rel="icon" href="data:;base64,=">
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=yes">
-    <?php $this->registerCsrfMetaTags() ?><title><?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
+    <?php $this->registerCsrfMetaTags() ?>
+    <title><?= Html::encode($this->title) ?></title>
 </head>
 
 <?php $this->beginBody() ?>
@@ -91,7 +94,7 @@ AppAsset::register($this);
                                     <input type="submit" value="Войти" name="do_login" id="do_login"
                                            class="btn btn-default">
                                     <div class="clearfix">
-                                        <a href="password-restore" rel="nofollow" class="pull-right clearfix"
+                                        <a href="http://evira/web/password-restore" rel="nofollow" class="pull-right clearfix"
                                            style="font-size: 10px;">
                                         </a>
                                     </div>
@@ -100,13 +103,15 @@ AppAsset::register($this);
                                 <div class="block-separator my-15">
                                 </div>
                                 <div class="small-text text-center sign-up-text"> У вас нет аккаунта?
-                                    <a href="register-form" rel="nofollow"
+                                    <a href="http://evira/web/register-form" rel="nofollow"
                                        class="btn btn-default btn-small sign-up-button"> Зарегистрироваться
                                     </a>
                                 </div>
                             </ul>
                         </li>
-                    <?php endif ?>
+                    <?php else :
+                    echo '<div class = "white">' . User::findUsername(Yii::$app->user->id) . '</div>';
+                    endif ?>
                 </ul>
             </noindex>
         </div>
@@ -142,3 +147,4 @@ AppAsset::register($this);
 <script src="//cdn.jsdelivr.net/npm/sweetalert2"></script>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <link rel="stylesheet" href="../../web/css/jquery-msgpopup.css">
+<link rel="stylesheet" href="../../stylesheets/page.css">

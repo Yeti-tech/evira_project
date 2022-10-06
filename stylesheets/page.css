@@ -388,7 +388,18 @@ a {
     padding-top: 5%;
 }
 
-.form-group.row.field-passwordrestore-email.required {
+.green {
+    color: lawngreen;
+}
+.form-group.row.field-user-email.required {
+    margin-bottom: 1rem;
+    padding-top: 20px;
+    width: 320px;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+
+div.form-group.row.field-user-password {
     margin-bottom: 1rem;
     padding-top: 20px;
     width: 320px;
@@ -402,4 +413,8 @@ a {
 
 .black {
     color: black;
+}
+
+.white {
+    color: white;
 }

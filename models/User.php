@@ -3,27 +3,31 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
-use yii\helpers\Html;
+use yii\helpers\VarDumper;
+
 
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
 
     /**
      * This is the model class for table "User".
-     *
-     * @property int $id
      * @property string $username
-     * @property string $password
+     * @property string $password_hash
      * @property string $auth_key
-     * @property string $accessToken
+     * @property integer $access_token
      * @property string $email
      * @property integer $cart_id
      * @property integer $account_id
-     *
+     * @property int $id
      */
 
-    public function beforeSave($insert)
+    //public $token;
+
+
+
+    public function beforeSave($insert): bool
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
@@ -34,11 +38,56 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return false;
     }
 
-    public static function register_user($registerForm, $password_hash): User
+
+    /**
+     * @throws Exception
+     */
+    public function setAuthKey()
+    {
+        $this->auth_key = \Yii::$app->security->generateRandomString(5);
+    }
+
+    /**
+     * @return string current user auth key
+     */
+    public function getAuthKey(): string
+    {
+        return $this->auth_key;
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function setAccessToken()
+    {
+        $this->access_token = random_int(0, 99999);
+        $this->save();
+    }
+
+    public function deleteOldPassword(): void
+    {
+        $this->password_hash = null;
+        $this->save();
+    }
+    public function getAccessToken ()
+    {
+        return $this->access_token;
+    }
+    public function getPassword()
+    {
+        return $this->password_hash;
+    }
+
+    public static function register_user($registerForm):  User
     {
         $user = new self;
         $user->username = $registerForm->username;
-        $user->password = $password_hash;
+        $user->password_hash = Yii::$app->getSecurity()->generatePasswordHash($registerForm->password);
         $user->email = $registerForm->email;
         $user->setAuthKey();
         if ($user->validate()) {
@@ -47,29 +96,15 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return $user;
     }
 
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    public function setAccessToken ()
-    {
-        $this->accessToken = random_int(0, 99999);
-        $this->save();
-    }
-
-    public function getAccessToken ()
-    {
-        return $this->accessToken;
-    }
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
     public static function findIdentity($id)
     {
         return static::findOne($id);
+    }
+
+    public static function findUsername($id)
+    {
+       $model = static::findOne($id);
+        return $model->getUsername();
     }
 
     public static function findIdentityByAccessToken($token, $type = null)
@@ -102,18 +137,6 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return $this->id;
     }
 
-    /**
-     * @return string current user auth key
-     */
-    public function getAuthKey()
-    {
-        return $this->auth_key;
-    }
-
-    public function setAuthKey(): string
-    {
-        return $this->auth_key = \Yii::$app->security->generateRandomString(5);
-    }
 
     /**
      * @param string $authKey
@@ -139,20 +162,47 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return false;
     }
 
+
+    /**
+     * @throws \yii\db\StaleObjectException
+     * @throws Exception
+     */
+    public function changePassword($new_password): bool
+    {
+        $password_hash = Yii::$app->getSecurity()->generatePasswordHash($new_password);
+        if ($this->validate()) {
+            $this->password_hash = $password_hash;
+            $this->access_token = null;
+            $this->update();
+            return  true;
+        }
+        return false;
+    }
+
     public function rules(): array
     {
         return [
             [['username'], 'string', 'max' => 15],
             [['username'], 'required'],
-            [['password'], 'string'],
-            [['password'], 'required'],
+            [['password_hash'], 'string'],
+            [['password_hash'], 'required'],
             [['auth_key'], 'unique'],
-            [['accessToken'], 'unique'],
+            [['access_token'], 'unique'],
+            [['access_token'], 'integer'],
             [['email'], 'unique'],
             [['email'], 'email'],
             [['email'], 'required'],
             [['cart_id'], 'unique'],
-            [['cart_id'], 'unique'],
+        ];
+    }
+
+    public function attributeLabels(): array
+    {
+        return [
+            'username' => 'Имя пользователя',
+            'password' => 'Пароль',
+            'email' => 'Email',
+
         ];
     }
 }
